@@ -1,12 +1,19 @@
 <html>
   <head>
     <script>
+    var map = {
+      'U+0057': 'up',
+      'U+0053': 'down',
+      'U+0044': 'right',
+      'U+0041': 'left'
+    }
     var state = {
       up: false,
       right: false,
       down: false,
       left: false
     };
+    var clawState = 'open';
     function onload() {
       function process() {
         var key = 0;
@@ -61,17 +68,29 @@
         }
       }
       window.onkeyup = function (e) {
-        var key = e.keyIdentifier.toLowerCase();
-        if (state[key] == true) {
-          state[e.keyIdentifier.toLowerCase()] = false;
+        var key = e.keyIdentifier;
+        if (state[map[key]] == true) {
+          state[map[key]] = false;
           process();
+        } else if (key == 'U+0020' && clawState == 'close') {
+          console.log('Opening');
+          clawState = 'open';
+          var xhr = new XMLHttpRequest();
+          xhr.open('get', window.location.protocol + '//' + window.location.host + '/open');
+          xhr.send();
         }
       };
       window.onkeydown = function (e) {
-        var key = e.keyIdentifier.toLowerCase();
-        if (state[key] == false) {
-          state[e.keyIdentifier.toLowerCase()] = true;
+        var key = e.keyIdentifier;
+        if (state[map[key]] == false) {
+          state[map[key]] = true;
           process();
+        } else if (key == 'U+0020' && clawState == 'open') {
+          console.log('Closing');
+          clawState = 'close';
+          var xhr = new XMLHttpRequest();
+          xhr.open('get', window.location.protocol + '//' + window.location.host + '/close');
+          xhr.send();
         }
       };
     }
